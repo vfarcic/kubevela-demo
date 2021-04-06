@@ -1,9 +1,9 @@
 apiVersion: core.oam.dev/v1beta1
 kind: ComponentDefinition
 metadata:
-  name: worker
+  name: backend
   annotations:
-    definition.oam.dev/description: "Describes long-running, scalable, containerized services that running at backend. They do NOT have network endpoint to receive external network traffic."
+    definition.oam.dev/description: "It's backend and I'm too lazy to write descriptions"
 spec:
   workload:
     definition:
@@ -48,7 +48,7 @@ kind: ComponentDefinition
 metadata:
   name: frontend
   annotations:
-    definition.oam.dev/description: "This is a definition of a frontend component"
+    definition.oam.dev/description: "It's frontend and I'm too lazy to write descriptions"
 spec:
   workload:
     definition:
@@ -69,7 +69,8 @@ spec:
                 app.oam.dev/component: frontend
             spec:
               containers:
-              - ports:
+              - name: frontend
+                ports:
                 - containerPort: 80
                 livenessProbe:
                   httpGet:
@@ -84,9 +85,10 @@ spec:
         required: true
         type: string
         fieldPaths:
+        - metadata.name
+        - metadata.labels.app
         - spec.selector.matchLabels.app
         - spec.template.metadata.labels.app
-        - spec.template.spec.containers[0].name
       - name: image
         required: true
         type: string

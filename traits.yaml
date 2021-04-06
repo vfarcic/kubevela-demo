@@ -35,7 +35,7 @@ spec:
             }
         }
         parameter: {
-            min:     *1 | int
-            max:     *10 | int
-            cpuUtil: *50 | int
+            min:     *2 | int
+            max:     *6 | int
+            cpuUtil: *80 | int
         }
