@@ -1,17 +1,17 @@
 apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
-  name: first-vela-app
+  name: devops-toolkit
 spec:
   components:
-    - name: express-server
+    - name: devops-toolkit
       type: webservice
       properties:
-        image: crccheck/hello-world
-        port: 8000
+        image: vfarcic/devops-toolkit-series
+        port: 80
       traits:
         - type: ingress
           properties:
             domain: localhost
             http:
-              "/": 8000
+              "/": 80

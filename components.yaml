@@ -1,0 +1,101 @@
+apiVersion: core.oam.dev/v1beta1
+kind: ComponentDefinition
+metadata:
+  name: worker
+  annotations:
+    definition.oam.dev/description: "Describes long-running, scalable, containerized services that running at backend. They do NOT have network endpoint to receive external network traffic."
+spec:
+  workload:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+  schematic:
+    cue:
+      template: |
+        output: {
+            apiVersion: "apps/v1"
+            kind:       "Deployment"
+            spec: {
+                selector: matchLabels: {
+                    "app.oam.dev/component": context.name
+                }
+                template: {
+                    metadata: labels: {
+                        "app.oam.dev/component": context.name
+                    }
+                    spec: {
+                        containers: [{
+                            name:  context.name
+                            image: parameter.image
+
+                            if parameter["cmd"] != _|_ {
+                                command: parameter.cmd
+                            }
+                        }]
+                    }
+                }
+            }
+        }
+        parameter: {
+            image: string
+            cmd?: [...string]
+        }
+
+---
+
+apiVersion: core.oam.dev/v1beta1
+kind: ComponentDefinition
+metadata:
+  name: frontend
+  annotations:
+    definition.oam.dev/description: "This is a definition of a frontend component"
+spec:
+  workload:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+  schematic:
+    kube:
+      template:
+        apiVersion: apps/v1
+        kind: Deployment
+        spec:
+          selector:
+            matchLabels:
+              app.oam.dev/component: frontend
+          template:
+            metadata:
+              labels:
+                app.oam.dev/component: frontend
+            spec:
+              containers:
+              - ports:
+                - containerPort: 80
+                livenessProbe:
+                  httpGet:
+                    path: /
+                    port: 80
+                readinessProbe:
+                  httpGet:
+                    path: /
+                    port: 80
+      parameters:
+      - name: name
+        required: true
+        type: string
+        fieldPaths:
+        - spec.selector.matchLabels.app
+        - spec.template.metadata.labels.app
+        - spec.template.spec.containers[0].name
+      - name: image
+        required: true
+        type: string
+        fieldPaths:
+        - spec.template.spec.containers[0].image
+      - name: port
+        required: false
+        type: number
+        fieldPaths:
+        - spec.template.spec.containers[0].ports[0].containerPort
+        - spec.template.spec.containers[0].livenessProbe.httpGet.port
+        - spec.template.spec.containers[0].readinessProbe.httpGet.port
