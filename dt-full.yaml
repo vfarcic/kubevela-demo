@@ -5,7 +5,7 @@ metadata:
 spec:
   components:
     - name: backend
-      type: worker
+      type: backend
       properties:
         image: alpine
         cmd:
